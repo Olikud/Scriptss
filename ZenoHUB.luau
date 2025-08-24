@@ -10,37 +10,27 @@ local EspTab = Window:NewTab("ESP")
 local BossTab = Window:NewTab("Boss Farm")
 local TpTab = Window:NewTab("Teleports")
 
--- Auto Farm Section
-local FarmSection = FarmTab:NewSection("Mob Farm")
-FarmSection:NewToggle("Auto Farm", "Automatically farm mobs", function(state)
-    _G.AutoFarm = state
-    while _G.AutoFarm do task.wait()
-        pcall(function()
-            local enemy = game:GetService("Workspace").Enemies:FindFirstChildWhichIsA("Model")
-            if enemy and enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
-                local player = game.Players.LocalPlayer.Character
-                player.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(0,15,0)
-                task.wait(0.2)
-                game:GetService("VirtualUser"):ClickButton1(Vector2.new())
-            end
-        end)
-    end
-end)
+-- Auto Farm poprawka
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local VirtualUser = game:GetService("VirtualUser")
 
--- ESP Section
-local EspSection = EspTab:NewSection("ESP")
-EspSection:NewButton("ESP Fruits", "Highlights fruits on the map", function()
-    for _,v in pairs(game.Workspace:GetChildren()) do
-        if v:IsA("Tool") and string.find(v.Name, "Fruit") then
-            local esp = Instance.new("BillboardGui", v)
-            esp.Size = UDim2.new(0,200,0,50)
-            esp.AlwaysOnTop = true
-            esp.StudsOffset = Vector3.new(0,2,0)
-            local label = Instance.new("TextLabel", esp)
-            label.Size = UDim2.new(1,0,1,0)
-            label.Text = v.Name
-            label.TextColor3 = Color3.new(1,0,0)
-            label.BackgroundTransparency = 1
+getgenv().AutoFarm = true
+
+task.spawn(function()
+    while getgenv().AutoFarm do
+        task.wait()
+
+        local enemy = workspace.Enemies:FindFirstChildWhichIsA("Model")
+        if enemy and enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") then
+            -- Teleport nad moba
+            LocalPlayer.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
+
+            -- Sprawdź zasięg i bij
+            if (LocalPlayer.Character.HumanoidRootPart.Position - enemy.HumanoidRootPart.Position).Magnitude <= 15 then
+                VirtualUser:CaptureController()
+                VirtualUser:ClickButton1(Vector2.new(0,0)) -- symulacja ataku
+            end
         end
     end
 end)

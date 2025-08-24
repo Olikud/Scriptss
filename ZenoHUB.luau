@@ -1,5 +1,5 @@
 -- ⚠️ Używasz na własne ryzyko ⚠️
--- ZenoHUB: Auto Farm, Boss Farm, Teleporty, ESP, Auto Buso
+-- ZenoHUB: Auto Farm, Teleporty, ESP, Auto Buso
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local Window = Library.CreateLib("ZenoHUB", "DarkTheme")
@@ -8,18 +8,27 @@ local Window = Library.CreateLib("ZenoHUB", "DarkTheme")
 local farmTab = Window:NewTab("Auto Farm")
 local farmSec = farmTab:NewSection("Farming")
 
-farmSec:NewToggle("Auto Farm Mobs", "Automatyczne farmienie najbliższych mobów", function(state)
+farmSec:NewToggle("Auto Farm Moby", "Automatyczne farmienie najbliższych mobów", function(state)
     getgenv().AutoFarm = state
     while getgenv().AutoFarm do
         task.wait()
         local player = game.Players.LocalPlayer
         local char = player.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp then
+        local tool = char and char:FindFirstChildOfClass("Tool") -- np. miecz
+
+        if hrp and tool then
             for _, mob in pairs(workspace.Enemies:GetChildren()) do
                 if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
-                    hrp.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0,0,3)
-                    game:GetService("VirtualUser"):ClickButton1(Vector2.new())
+                    -- ustawiamy się nad mobem
+                    hrp.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
+
+                    -- spam ataków
+                    for i = 1,3 do
+                        game:GetService("VirtualUser"):ClickButton1(Vector2.new())
+                        task.wait(0.1)
+                    end
+
                     break
                 end
             end
@@ -34,11 +43,15 @@ farmSec:NewToggle("Auto Farm Bossy", "Bije bossów automatycznie", function(stat
         local bosses = {"Bobby","Yeti","Saber Expert","Magma Admiral"}
         local player = game.Players.LocalPlayer
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-        if hrp then
+        local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+        if hrp and tool then
             for _, mob in pairs(workspace.Enemies:GetChildren()) do
                 if table.find(bosses, mob.Name) and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
-                    hrp.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0,0,3)
-                    game:GetService("VirtualUser"):ClickButton1(Vector2.new())
+                    hrp.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
+                    for i = 1,3 do
+                        game:GetService("VirtualUser"):ClickButton1(Vector2.new())
+                        task.wait(0.1)
+                    end
                     break
                 end
             end
@@ -77,7 +90,6 @@ espSec:NewToggle("ESP Owoce", "Pokazuje owoce na mapie", function(state)
                 if not v:FindFirstChild("Highlight") then
                     local highlight = Instance.new("Highlight", v)
                     highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
                 end
             end
         end
@@ -93,7 +105,6 @@ espSec:NewToggle("ESP Skrzynki", "Pokazuje skrzynki", function(state)
                 if not v:FindFirstChild("Highlight") then
                     local highlight = Instance.new("Highlight", v)
                     highlight.FillColor = Color3.fromRGB(0, 255, 0)
-                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
                 end
             end
         end
